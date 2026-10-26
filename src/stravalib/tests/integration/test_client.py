@@ -19,7 +19,12 @@ from stravalib.exc import (
     ApplicationInactive,
     Fault,
 )
-from stravalib.model import DetailedAthlete, SummaryAthlete, SummarySegment
+from stravalib.model import (
+    DetailedAthlete,
+    Segment,
+    SummaryAthlete,
+    SummarySegment,
+)
 from stravalib.strava_model import SummaryActivity, Zones
 from stravalib.tests import RESOURCES_DIR
 from stravalib.unit_helper import miles
@@ -1204,6 +1209,20 @@ def test_get_starred_segments(
     if expected_n_segments > 0:
         assert isinstance(segment_list[0], SummarySegment)
         assert segment_list[0].name == "test_segment"
+
+
+@pytest.mark.parametrize("starred", (True, False))
+def test_star_segment(mock_strava_api, client, starred):
+    mock_strava_api.put(
+        "/segments/{id}/starred",
+        response_update={"starred": starred},
+    )
+    segment = client.star_segment(42, starred)
+    request = mock_strava_api.calls[-1].request
+    assert request.url.endswith("/segments/42/starred")
+    assert json.loads(request.body) == {"starred": starred}
+    assert isinstance(segment, Segment)
+    assert segment.starred is starred
 
 
 def test_get_club(mock_strava_api, client):

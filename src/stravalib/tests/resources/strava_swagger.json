@@ -936,6 +936,13 @@
             "description": "Set to 1 to mark as commute.",
             "type": "integer",
             "required": false
+          },
+          {
+            "name": "tags",
+            "in": "formData",
+            "description": "Activity tags to set, sent as form fields keyed by tag name with a boolean value, e.g. `tags[WithPet]=true` (true adds, false removes). Supported tags: WithPet, Recovery, Competition, ForACause, Commute. Any other tag is rejected. This cannot be combined with the legacy commute param in the same request.",
+            "type": "string",
+            "required": false
           }
         ],
         "tags": [
@@ -2244,6 +2251,12 @@
             "name": "commute",
             "in": "formData",
             "description": "Whether the resulting activity should be tagged as a commute.",
+            "type": "string"
+          },
+          {
+            "name": "tags",
+            "in": "formData",
+            "description": "Activity tags to set on the resulting activity, sent as form fields keyed by tag name with a boolean value, e.g. `tags[WithPet]=true` (true adds, false removes). Supported tags: WithPet, Recovery, Competition, ForACause, Commute. Any other tag is rejected. This cannot be combined with the legacy commute param in the same request.",
             "type": "string"
           },
           {

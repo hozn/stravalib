@@ -86,6 +86,7 @@ Segment related methods
    Client.get_segment
    Client.get_starred_segments
    Client.get_athlete_starred_segments
+   Client.star_segment
    Client.get_segment_efforts
    Client.explore_segments
 

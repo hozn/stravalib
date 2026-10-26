@@ -7,7 +7,7 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field, RootModel
+from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 
 class ActivityTotal(BaseModel):
@@ -650,6 +650,17 @@ class SummaryActivity(MetaActivity):
     The time at which the activity was started in the local timezone.
     """
     start_latlng: LatLng | None = None
+    tags: (
+        Sequence[
+            Literal[
+                "WithPet", "Recovery", "Competition", "ForACause", "Commute"
+            ]
+        ]
+        | None
+    ) = None
+    """
+    The activity tags currently applied to this activity
+    """
     timezone: str | None = None
     """
     The timezone of the activity
@@ -887,6 +898,21 @@ class TimeStream(BaseStream):
     """
 
 
+class Tags(BaseModel):
+    """
+    Activity tags to set, keyed by tag name with a boolean value (true to add, false to remove). Only the tags you include are changed; any tag you omit — and every other tag on the activity — is left unchanged. Any tag outside the supported set is rejected. Commute is set here rather than via the legacy commute param, and the two cannot be combined in the same request.
+    """
+
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    Commute: bool | None = None
+    Competition: bool | None = None
+    ForACause: bool | None = None
+    Recovery: bool | None = None
+    WithPet: bool | None = None
+
+
 class UpdatableActivity(BaseModel):
     commute: bool | None = None
     """
@@ -909,6 +935,10 @@ class UpdatableActivity(BaseModel):
     The name of the activity
     """
     sport_type: SportType | None = None
+    tags: Tags | None = None
+    """
+    Activity tags to set, keyed by tag name with a boolean value (true to add, false to remove). Only the tags you include are changed; any tag you omit — and every other tag on the activity — is left unchanged. Any tag outside the supported set is rejected. Commute is set here rather than via the legacy commute param, and the two cannot be combined in the same request.
+    """
     trainer: bool | None = None
     """
     Whether this activity was recorded on a training machine

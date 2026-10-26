@@ -37,14 +37,14 @@ repos:
 
   # Linting code using ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.15.20
+    rev: v0.16.10
     hooks:
     - id: ruff
       args: [--fix, --exit-non-zero-on-fix]
 
   # Black for auto code formatting
   - repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.5.1
+    rev: 26.10.0
     hooks:
       - id: black
         entry: bash -c 'black "$@"; git add -u' --
@@ -57,7 +57,7 @@ repos:
       - id: blacken-docs
 
   - repo: https://github.com/codespell-project/codespell
-    rev: v2.4.2
+    rev: v2.4.3
     hooks:
       - id: codespell
         files: ^.*\.(py|md|rst)$

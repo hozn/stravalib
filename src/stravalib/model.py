@@ -224,6 +224,43 @@ def check_valid_location(
         return None
 
 
+# The generated annotation is Sequence[Literal[...]] | None
+_KNOWN_ACTIVITY_TAGS = get_args(
+    get_args(
+        get_args(strava_model.SummaryActivity.model_fields["tags"].annotation)[
+            0
+        ]
+    )[0]
+)
+
+
+def check_activity_tags(tags: Sequence[str] | None) -> list[str] | None:
+    """
+    Remove the activity tags that the Strava API spec does not define.
+
+    Strava can return tags that are not (yet) in its API spec. Without this
+    check, one unknown tag makes the validation of the whole activity fail.
+
+    Parameters
+    ----------
+    tags : List of str or None
+        The tags of the activity, as returned by the API.
+
+    Returns
+    -------
+    List or None
+        The known tags, in the given order, or None if no tags are given.
+    """
+    if tags is None:
+        return None
+    unknown_tags = [tag for tag in tags if tag not in _KNOWN_ACTIVITY_TAGS]
+    if unknown_tags:
+        LOGGER.warning(
+            f"Unexpected activity tags. Given={unknown_tags}, removing them"
+        )
+    return [tag for tag in tags if tag in _KNOWN_ACTIVITY_TAGS]
+
+
 # Custom types:
 
 BaseType = TypeVar("BaseType")
@@ -1242,6 +1279,7 @@ class SummaryActivity(MetaActivity, strava_model.SummaryActivity):
     _latlng_check = field_validator(
         "start_latlng", "end_latlng", mode="before"
     )(check_valid_location)
+    _tags_check = field_validator("tags", mode="before")(check_activity_tags)
 
 
 class DetailedActivity(

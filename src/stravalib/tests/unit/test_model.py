@@ -163,6 +163,29 @@ def test_relaxed_activity_type_validation(
 
 
 @pytest.mark.parametrize(
+    "klass,given_tags,expected_tags,expect_warning",
+    (
+        (SummaryActivity, None, None, False),
+        (SummaryActivity, [], [], False),
+        (
+            SummaryActivity,
+            ["WithPet", "Commute"],
+            ["WithPet", "Commute"],
+            False,
+        ),
+        (SummaryActivity, ["Indoor"], [], True),
+        (DetailedActivity, ["Indoor", "Recovery"], ["Recovery"], True),
+    ),
+)
+def test_relaxed_activity_tags_validation(
+    klass, given_tags, expected_tags, expect_warning, caplog
+):
+    obj = klass.model_validate({"tags": given_tags})
+    assert obj.tags == expected_tags
+    assert ("Unexpected activity tags" in caplog.text) == expect_warning
+
+
+@pytest.mark.parametrize(
     "a_attr,a_value,b_attr,b_value,expected_attr_equality",
     (
         ("type", "Run", "type", "Run", True),

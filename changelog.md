@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+- Add: `Client.star_segment` to star or unstar a segment for the authenticated athlete via the `/segments/{id}/starred` endpoint (@cpruijsen)
+- Add: The `tags` attribute of `SummaryActivity` and `DetailedActivity`, a list of the tags on the activity (`WithPet`, `Recovery`, `Competition`, `ForACause`, `Commute`). Tags that are not in this list are removed with a warning, so they do not make the validation of the activity fail. Also add `strava_model.Tags` and the `tags` field of `strava_model.UpdatableActivity`. Strava added these to its API spec without a changelog entry. `Client.create_activity`, `Client.update_activity`, and `Client.upload_activity` do not send tags (@jsamoocha, #752)
+
 ### Changed
 - Change: Keep `Client.deauthorize()` and use Strava's `/oauth/revoke` endpoint with HTTP Basic authentication and a form-encoded token. Prefer the refresh token, falling back to the access token, and send the matching `token_type_hint`. Missing credentials or the absence of both tokens raises `ValueError`. Revocation does not refresh the token first (@mifuha, #738).
 - Use dependency groups (PEP 735) instead of optional dependencies. Also use `no-uv` plugin. (@mwtoews, #748)

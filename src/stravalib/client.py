@@ -1369,6 +1369,34 @@ class Client:
             limit=limit,
         )
 
+    def star_segment(self, segment_id: int, starred: bool) -> model.Segment:
+        """Stars or unstars the given segment for the authenticated
+        athlete.
+
+        https://developers.strava.com/docs/reference/#api-Segments-starSegment
+
+        Parameters
+        ----------
+        segment_id : int
+            The segment to star.
+        starred : bool
+            If true, star the segment; if false, unstar the segment.
+
+        Returns
+        -------
+        class:`stravalib.model.Segment`
+            A segment object.
+
+        """
+        raw_segment = self.protocol.put(
+            "/segments/{id}/starred",
+            id=segment_id,
+            body={"starred": starred},
+        )
+        return model.Segment.model_validate(
+            {**raw_segment, **{"bound_client": self}}
+        )
+
     # Next TODO: add tests to deprecated items
     def get_segment_efforts(
         self,
