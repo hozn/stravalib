@@ -42,8 +42,6 @@ jobs:
           key: ubuntu-latest-pip-${{ steps.set_variables.outputs.PY }}
       - name: Install uv
         uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
-      - name: Create lock file
-        run: uv sync
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
