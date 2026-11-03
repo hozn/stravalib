@@ -40,7 +40,7 @@ build_command = ["-b", "html", "docs/", "docs/_build/html"]
 def docs_test(session):
     """A session that builds the docs statically and returns any errors that
     it finds."""
-    session.install(".[docs]")
+    session.install(".", "--group=docs")
     session.run(
         SPHINX_BUILD,
         *BUILD_PARAMETERS,
@@ -53,7 +53,7 @@ def docs_test(session):
 
 @nox.session(name="docs", python="3.11")
 def docs(session):
-    session.install(".[docs]")
+    session.install(".", "--group=docs")
     cmd = ["sphinx-build"]
     cmd.extend(build_command + session.posargs)
     session.run(*cmd)
@@ -61,7 +61,7 @@ def docs(session):
 
 @nox.session(name="docs-live", python="3.11")
 def docs_live(session):
-    session.install(".[docs]")
+    session.install(".", "--group=docs")
 
     AUTOBUILD_IGNORE = [
         "_build",
@@ -83,7 +83,7 @@ def docs_live(session):
 @nox.session(python=["3.11", "3.12", "3.13", "3.14"])
 def tests(session):
     """Install requirements in a venv and run tests."""
-    session.install(".[tests]")
+    session.install(".", "--group=tests")
     session.run(
         "pytest",
         "--cov=src/stravalib",
@@ -97,7 +97,7 @@ def tests(session):
 # Use this for venv envs nox -s mypy
 @nox.session(python="3.11")
 def mypy(session):
-    session.install(".[lint]")
+    session.install(".", "--group=lint")
     session.run(
         "mypy",
     )
@@ -137,7 +137,7 @@ def build(session):
     """Build the package's SDist and wheel using PyPA build and
     setuptools / setuptools_scm"""
 
-    session.install(".[build]")
+    session.install(".", "--group=build")
     session.run("python", "-m", "build")
 
 

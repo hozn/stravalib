@@ -88,17 +88,14 @@ Once you have a virtual environment created, you are ready to install stravalib'
  editable mode (`-e`). Editable mode allows you to update the package and test those updates in real-time.
 
 ```bash
-# Install the package in editable model and all requirements
-$ pip install -e ".[build, tests, docs]"
+# Install the package in editable model and test requirements
+$ pip install -e . --group dev
 ```
 
-:::{note}
-If you only want to install dependencies for building and testing the package (and exclude the docs requirements), you can run:
-
-`pip install -e ".[build, tests]"`
-
-Quotes around `".[build, tests]"` are required for some shells such as `zsh` but not for all shells.
-:::
+If you also need to install dependencies for building docs, also run:
+```bash
+$ pip install --group docs
+```
 
 (ci_api_updates)=
 ## Architecture Overview

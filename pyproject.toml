@@ -57,7 +57,10 @@ repository = "https://github.com/stravalib/stravalib"
 changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
 
 
-[project.optional-dependencies]
+[dependency-groups]
+nox = [
+    "nox",
+]
 build = ["build"]
 tests = [
   "pytest",
@@ -89,6 +92,12 @@ lint = [
   "types-Flask",
   "ruff",
   "types-python-dateutil"
+]
+dev = [
+  "pre-commit",
+  { include-group = "build" },
+  { include-group = "tests" },
+  { include-group = "lint" },
 ]
 
 [tool.black]

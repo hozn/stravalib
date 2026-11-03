@@ -24,11 +24,8 @@ jobs:
           python-version: ${{ env.PYTHON-VERSION }}
       - name: Install uv
         uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
-      - name: Upgrade pip & install nox
-        run: |
-          # install pip=>20.1 to use "pip cache dir"
-          python3 -m pip install --upgrade pip
-          pip install nox
+      - name: Upgrade pip
+        run: python3 -m pip install --upgrade pip
       - name: Set Variables
         id: set_variables
         shell: bash
@@ -41,12 +38,9 @@ jobs:
           path: ${{ steps.set_variables.outputs.PIP_CACHE }}
           key: ${{ runner.os }}-pip-${{ steps.set_variables.outputs.PY }}
       - name: Install dependencies
-        run: |
-          pip install nox
+        run: pip install --group nox
       - name: Build docs & linkcheck
-        run: |
-          # Build html and link check
-          nox -s docs
+        run: nox -s docs
       - name: Print doc link failures in the output.txt file
         if: success() || failure()
         run: |
