@@ -8,7 +8,7 @@
 
 ### Changed
 - Change: Keep `Client.deauthorize()` and use Strava's `/oauth/revoke` endpoint with HTTP Basic authentication and a form-encoded token. Prefer the refresh token, falling back to the access token, and send the matching `token_type_hint`. Missing credentials or the absence of both tokens raises `ValueError`. Revocation does not refresh the token first (@mifuha, #738).
-- Use dependency groups (PEP 735) instead of optional dependencies. Also use `no-uv` plugin. (@mwtoews, #748)
+- Use dependency groups (PEP 735) instead of optional dependencies (@mwtoews, #748).
 
 ### Fixed
 - Fix: The `explore_segments` warning and docs now say that Strava restricted the endpoint to the Extended Access Tier on September 1, 2026. Before, they said that Strava restricts it on that date (@jsamoocha, #745)

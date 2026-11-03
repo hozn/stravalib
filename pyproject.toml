@@ -59,7 +59,7 @@ changelog = "https://github.com/stravalib/stravalib/blob/main/changelog.md"
 
 [dependency-groups]
 nox = [
-    "nox-uv",
+    "nox",
 ]
 build = ["build"]
 tests = [

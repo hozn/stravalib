@@ -4,7 +4,6 @@ import shutil
 from glob import glob
 
 import nox
-import nox_uv
 
 nox.options.default_venv_backend = "uv"
 nox.options.reuse_existing_virtualenvs = False
@@ -37,10 +36,11 @@ AUTOBUILD_INCLUDE = [pathlib.Path("_static", "pyos.css")]
 build_command = ["-b", "html", "docs/", "docs/_build/html"]
 
 
-@nox_uv.session(name="docs-test", python="3.12", uv_groups=["docs"])
+@nox.session(name="docs-test", python="3.12")
 def docs_test(session):
     """A session that builds the docs statically and returns any errors that
     it finds."""
+    session.install(".", "--group=docs")
     session.run(
         SPHINX_BUILD,
         *BUILD_PARAMETERS,
@@ -51,15 +51,18 @@ def docs_test(session):
     )
 
 
-@nox_uv.session(name="docs", python="3.11", uv_groups=["docs"])
+@nox.session(name="docs", python="3.11")
 def docs(session):
+    session.install(".", "--group=docs")
     cmd = ["sphinx-build"]
     cmd.extend(build_command + session.posargs)
     session.run(*cmd)
 
 
-@nox_uv.session(name="docs-live", python="3.11", uv_groups=["docs"])
+@nox.session(name="docs-live", python="3.11")
 def docs_live(session):
+    session.install(".", "--group=docs")
+
     AUTOBUILD_IGNORE = [
         "_build",
         "build_assets",
@@ -77,9 +80,10 @@ def docs_live(session):
 
 
 # Use this for venv envs nox -s test
-@nox_uv.session(python=["3.11", "3.12", "3.13", "3.14"], uv_groups=["tests"])
+@nox.session(python=["3.11", "3.12", "3.13", "3.14"])
 def tests(session):
     """Install requirements in a venv and run tests."""
+    session.install(".", "--group=tests")
     session.run(
         "pytest",
         "--cov=src/stravalib",
@@ -91,14 +95,15 @@ def tests(session):
 
 
 # Use this for venv envs nox -s mypy
-@nox_uv.session(python="3.11", uv_groups=["lint"])
+@nox.session(python="3.11")
 def mypy(session):
+    session.install(".", "--group=lint")
     session.run(
         "mypy",
     )
 
 
-@nox_uv.session(name="docs-clean")
+@nox.session(name="docs-clean")
 def clean_docs(session):
     """
     Clean out the docs directory used in the
@@ -127,14 +132,16 @@ def clean_docs(session):
         os.remove(content)
 
 
-@nox_uv.session(uv_groups=["build"])
+@nox.session()
 def build(session):
     """Build the package's SDist and wheel using PyPA build and
     setuptools / setuptools_scm"""
+
+    session.install(".", "--group=build")
     session.run("python", "-m", "build")
 
 
-@nox_uv.session()
+@nox.session()
 def install_wheel(session):
     """If you have several wheels in your dist/ directory this will
     try to install each one. so be sure to clean things out before
@@ -151,7 +158,7 @@ def install_wheel(session):
         print("No wheel files found matching the pattern: *.whl")
 
 
-@nox_uv.session()
+@nox.session()
 def clean_build(session):
     """Clean out the dist/ directory and also clean out other remnant
     files such as .coverage, etc."""
