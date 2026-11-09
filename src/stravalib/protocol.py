@@ -17,6 +17,7 @@ from urllib.parse import urlencode, urljoin, urlsplit, urlunsplit
 import requests
 
 from stravalib import exc
+from stravalib.util.limiter import _apply_rate_limiter
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -289,9 +290,6 @@ class ApiV3(metaclass=abc.ABCMeta):
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
         if "/oauth/" not in url:
-            # Import here because limiter imports RequestMethod from this module.
-            from stravalib.util.limiter import _apply_rate_limiter
-
             # Only activity creation and file uploads are exempt among the
             # operations dispatched here. Upload status GETs still count.
             # Photo bytes are sent directly to a presigned URL by the client.

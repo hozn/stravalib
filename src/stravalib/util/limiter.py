@@ -26,11 +26,12 @@ import logging
 import time
 from collections.abc import Callable
 from logging import Logger
-from typing import Literal, NamedTuple
+from typing import TYPE_CHECKING, Literal, NamedTuple
 
 import arrow
 
-from stravalib.protocol import RequestMethod
+if TYPE_CHECKING:
+    from stravalib.protocol import RequestMethod
 
 
 class RequestRate(NamedTuple):
