@@ -142,3 +142,16 @@ initialize the client object as::
 
 The ``low`` priority complies with the daily limit. The ``medium`` priority ensures that requests are throttled to comply with the
 15-minute limit.
+
+The built-in limiter considers the overall and non-upload quota families
+separately and uses the longest applicable wait. Activity creation and file
+uploads use only the overall quota; fetching upload status uses both.
+Throttling happens after a response, before it is returned or an HTTP error
+is raised. It does not retry requests or coordinate other clients sharing
+the application's quota. A newly considered limit can therefore delay a
+successful result or an error until that limit resets.
+
+Custom callbacks still receive ``(response_headers, method)``. An override
+of ``__call__`` keeps control of dispatch. Calling a limiter directly with
+those two arguments provides no endpoint context: GET considers both quota
+families, while other methods retain their overall-only behavior.

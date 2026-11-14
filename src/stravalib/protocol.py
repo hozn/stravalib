@@ -12,11 +12,12 @@ import os
 import time
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, Literal, TypedDict
-from urllib.parse import urlencode, urljoin, urlunsplit
+from urllib.parse import urlencode, urljoin, urlsplit, urlunsplit
 
 import requests
 
 from stravalib import exc
+from stravalib.util.limiter import _apply_rate_limiter
 
 if TYPE_CHECKING:
     from _typeshed import SupportsRead
@@ -289,7 +290,20 @@ class ApiV3(metaclass=abc.ABCMeta):
         # Rate limits are taken from HTTP response headers
         # https://developers.strava.com/docs/rate-limits/
         if "/oauth/" not in url:
-            self.rate_limiter(raw.headers, method)
+            # Only activity creation and file uploads are exempt among the
+            # operations dispatched here. Upload status GETs still count.
+            # Photo bytes are sent directly to a presigned URL by the client.
+            non_upload = not (
+                method.upper() == "POST"
+                and urlsplit(url).path.rstrip("/")
+                in {
+                    urlsplit(self.resolve_url(endpoint)).path.rstrip("/")
+                    for endpoint in ("activities", "uploads")
+                }
+            )
+            _apply_rate_limiter(
+                self.rate_limiter, raw.headers, method, non_upload=non_upload
+            )
 
         if check_for_errors:
             self._handle_protocol_error(raw)
