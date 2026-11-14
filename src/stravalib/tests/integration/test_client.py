@@ -5,7 +5,7 @@ import os
 import warnings
 from unittest import mock
 from unittest.mock import patch
-from urllib.parse import urlparse
+from urllib.parse import parse_qs, urlparse
 
 import pytest
 import requests
@@ -1321,10 +1321,27 @@ def test_get_activities(
         "/athlete/activities",
         response_update={"name": "test_activity"},
         n_results=n_raw_results,
+        match=[matchers.query_param_matcher({"page": 1, "per_page": 200})],
     )
+    needs_terminal_page = n_raw_results > 0 and (
+        limit is None or n_raw_results < limit
+    )
+    if needs_terminal_page:
+        mock_strava_api.get(
+            "/athlete/activities",
+            json=[],
+            match=[matchers.query_param_matcher({"page": 2, "per_page": 200})],
+        )
     kwargs = {"limit": limit} if limit is not None else {}
     activity_list = list(client.get_activities(**kwargs))
     assert len(activity_list) == expected_n_activities
+    assert [
+        parse_qs(urlparse(call.request.url).query)
+        for call in mock_strava_api.calls
+    ] == [
+        {"page": [str(page)], "per_page": ["200"]}
+        for page in range(1, 3 if needs_terminal_page else 2)
+    ]
     if expected_n_activities > 0:
         assert isinstance(activity_list[0], SummaryActivity)
         assert activity_list[0].name == "test_activity"
@@ -1410,10 +1427,19 @@ def test_get_activities_paged(mock_strava_api, client):
             n_results=(200 if i < 3 else 100),
             match=[matchers.query_param_matcher(params)],
         )
+    mock_strava_api.get(
+        "/athlete/activities",
+        json=[],
+        match=[matchers.query_param_matcher({"page": 4, "per_page": 200})],
+    )
     activity_list = list(client.get_activities())
     assert len(activity_list) == 500
     assert activity_list[0].id == 1
     assert activity_list[400].id == 3
+    assert [
+        parse_qs(urlparse(call.request.url).query)
+        for call in mock_strava_api.calls
+    ] == [{"page": [str(page)], "per_page": ["200"]} for page in range(1, 5)]
 
 
 @responses.activate

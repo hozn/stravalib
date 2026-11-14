@@ -413,6 +413,8 @@ class Client:
             bind_client=self,
             result_fetcher=result_fetcher,
             limit=limit,
+            # Strava allows short non-final pages of activities.
+            stop_on_short_page=False,
         )
 
     def get_athlete(self) -> model.DetailedAthlete:
@@ -2123,6 +2125,8 @@ class BatchedResultsIterator(Generic[T]):
         bind_client: Client | None = None,
         limit: int | None = None,
         per_page: int | None = None,
+        *,
+        stop_on_short_page: bool = True,
     ):
         """
 
@@ -2139,6 +2143,11 @@ class BatchedResultsIterator(Generic[T]):
             The maximum number of rides to return.
         per_page: int
             How many rows to fetch per page (default is 200).
+        stop_on_short_page: bool, default=True
+            Whether a non-empty page smaller than ``per_page`` ends retrieval.
+            Set to False only for endpoints that support continuing until an
+            empty page. This can require an additional terminal request.
+            The default preserves behavior for existing iterator users.
         """
         self.log = logging.getLogger(
             f"{self.__class__.__module__}.{self.__class__.__name__}"
@@ -2147,6 +2156,7 @@ class BatchedResultsIterator(Generic[T]):
         self.bind_client = bind_client
         self.result_fetcher = result_fetcher
         self.limit = limit
+        self._stop_on_short_page = stop_on_short_page
 
         if per_page is not None:
             self.per_page = per_page
@@ -2186,7 +2196,9 @@ class BatchedResultsIterator(Generic[T]):
         self.log.debug(
             f"Requested page {self._page} (got: {len(self._buffer)} items)"
         )
-        if len(self._buffer) < self.per_page:
+        if not self._buffer or (
+            self._stop_on_short_page and len(self._buffer) < self.per_page
+        ):
             self._all_results_fetched = True
 
         self._page += 1

@@ -10,6 +10,7 @@
 - Change: Keep `Client.deauthorize()` and use Strava's `/oauth/revoke` endpoint with HTTP Basic authentication and a form-encoded token. Prefer the refresh token, falling back to the access token, and send the matching `token_type_hint`. Missing credentials or the absence of both tokens raises `ValueError`. Revocation does not refresh the token first (@mifuha, #738).
 
 ### Fixed
+- Fix: Keep fetching activities after a short page until an empty page or the requested limit is reached. Other iterator callers keep their existing behavior (@mifuha, #756).
 - Fix: Respect both overall and non-upload quotas when throttling API responses, while keeping activity creation and uploads exempt from non-upload limits. Preserve two-argument custom limiter callbacks (@mifuha, #758).
 - Fix: The `explore_segments` warning and docs now say that Strava restricted the endpoint to the Extended Access Tier on September 1, 2026. Before, they said that Strava restricts it on that date (@jsamoocha, #745)
 
